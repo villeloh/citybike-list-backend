@@ -76,15 +76,15 @@ const addAllStationsToDb = async () => {
 
     // field #0 contains line number (not needed)
     const station = new Station(
-      Number(data[1]), // unique stationId
+      parseInt(data[1]), // unique stationId
       data[2], // name in Finnish
       data[3], // name in Swedish
       data[4], // name in English
       data[5] +', ' + data[7], // address (street + city) in Finnish
       data[6] + ', ' + data[8], // address (street + city) in Swedish
       data[9], // bike service operator
-      Number(data[10]), // bike capacity
-      new GeoLocation(Number(data[11]), Number(data[12])) // x & y coordinates
+      parseInt(data[10]), // bike capacity
+      new GeoLocation(parseInt(data[11]), parseInt(data[12])) // x & y coordinates
     );
     db.collection(DB_COLL_NAME_STATIONS).insertOne(station);
   }
@@ -113,12 +113,12 @@ const addAllTripsToDb = async () => {
       const trip = new Trip(
         new Date(data[0]), // dep. time
         new Date(data[1]), // ret. time
-        Number(data[2]), // dep. stationId
+        parseInt(data[2]), // dep. stationId
         data[3], // dep. station name
-        Number(data[4]), // ret. stationId
+        parseInt(data[4]), // ret. stationId
         data[5], // ret. station name
-        Number(data[6]), // distance
-        Number(data[7]) // duration
+        parseInt(data[6]), // distance
+        parseInt(data[7]) // duration
       );
 
       if (validTrip(trip)) {
