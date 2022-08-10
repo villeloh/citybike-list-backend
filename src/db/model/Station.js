@@ -1,6 +1,7 @@
 class Station {
 
-  constructor(stationId, 
+  constructor(
+    stationId, 
     nameFinnish, 
     nameSwedish, 
     nameEnglish, 

@@ -1,6 +1,14 @@
 class Trip {
 
-  constructor(depTime, retTime, depStationId, depStationName, retStationId, retStationName, dist, dura) {
+  constructor(
+    depTime, 
+    retTime, 
+    depStationId, 
+    depStationName, 
+    retStationId, 
+    retStationName, 
+    dist, 
+    dura) {
     this.departureTime = depTime;
     this.returnTime = retTime;
     this.depStationId = depStationId;

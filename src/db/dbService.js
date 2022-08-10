@@ -131,7 +131,7 @@ const addAllTripsToDb = async () => {
   closeDbConnection();
 };
 
-const validTrip = (trip) => {
+exports.validTrip = (trip) => {
   return trip.distance > MIN_TRIP_DISTANCE_M && trip.duration > MIN_TRIP_DURATION_S;
 };
 
@@ -144,14 +144,14 @@ exports.createAndPopulateDb = async () => {
 
 // 'Regular' database methods, to be called by the controllers ========
 
-exports.addOneToDb = async (collectionName, object) => {
+exports.addOne = async (collectionName, object) => {
 
   const db = await connectedDatabase();
   await db.collection(collectionName).insertOne(object);
   closeDbConnection();
 };
 
-exports.getOneFromDb = async (collectionName, query) => {
+exports.getOne = async (collectionName, query) => {
 
   const db = await connectedDatabase();
   const foundObj = await db.collection(collectionName).findOne(query);
@@ -159,15 +159,15 @@ exports.getOneFromDb = async (collectionName, query) => {
   return foundObj;
 };
 
-exports.getManyFromDb = async (collectionName, query, options) => {
+exports.getMany = async (collectionName, query, options, skip, limit) => {
 
   const db = await connectedDatabase();
-  const foundObjects = await db.collection(collectionName).find(query, options);
+  const foundObjects = await db.collection(collectionName).find(query, options).skip(skip).limit(limit);
   closeDbConnection();
   return foundObjects.toArray();
 };
 
-exports.deleteOneFromDb = async (collectionName, query) => {
+exports.deleteOne = async (collectionName, query) => {
 
   const db = await connectedDatabase();
   const result = await db.collection(collectionName).deleteOne(query);
