@@ -167,6 +167,14 @@ exports.getMany = async (collectionName, query, options, skip, limit) => {
   return foundObjects.toArray();
 };
 
+exports.count = async (collectionName, query) => {
+
+  const db = await connectedDatabase();
+  const numOfObjects = await db.collection(collectionName).countDocuments(query);
+  closeDbConnection();
+  return numOfObjects;
+};
+
 exports.deleteOne = async (collectionName, query) => {
 
   const db = await connectedDatabase();

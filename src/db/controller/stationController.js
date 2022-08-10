@@ -1,4 +1,4 @@
-const { DB_COLL_NAME_STATIONS } = require('../../constants');
+const { DB_COLL_NAME_STATIONS, DB_COLL_NAME_TRIPS } = require('../../constants');
 const dbService = require('../dbService');
 
 exports.getStations = async (skip, limit) => {
@@ -6,11 +6,46 @@ exports.getStations = async (skip, limit) => {
   return await dbService.getMany(DB_COLL_NAME_STATIONS, {}, {}, skip, limit);
 };
 
-exports.getStation = async (stationId) => {
+// add useful data about the station
+exports.getStationInfo = async (stationId) => {
 
   const query = { stationId };
 
-  return await dbService.getOne(DB_COLL_NAME_STATIONS, query);
+  const station = await dbService.getOne(DB_COLL_NAME_STATIONS, query);
+
+  const tripsToOrFromStation = await dbService.getMany(DB_COLL_NAME_TRIPS, { $or: [{depStationId: stationId}, {retStationId: stationId} ]});
+
+  let numOfTripsFromStation = 0;
+  let numOfTripsToStation = 0;
+  let totalDistOfTripsFromStation = 0;
+  let totalDistOfTripsToStation = 0;
+
+  tripsToOrFromStation.forEach(trip => {
+
+    if (trip.depStationId === stationId) {
+      numOfTripsFromStation++;
+      totalDistOfTripsFromStation += trip.distance;
+    }
+    if (trip.retStationId === stationId) {
+      numOfTripsToStation++;
+      totalDistOfTripsToStation += trip.distance;
+    }
+  });
+
+  const averageTripDistFromStation = numOfTripsFromStation === 0 ? 0 : totalDistOfTripsFromStation / numOfTripsFromStation;
+  const averageTripDistToStation = numOfTripsToStation === 0 ? 0 : totalDistOfTripsToStation / numOfTripsToStation;
+
+  // Determining the top 5 most popular dep./ret. stations would have to be done by some kind of db query (perhaps with the aggregate syntax), 
+  // but I have no time to research it now.
+
+  return { 
+    name: station.nameEnglish, 
+    address: station.addressFinnish, 
+    numOfTripsFrom: numOfTripsFromStation, 
+    numOfTripsTo: numOfTripsToStation, 
+    avgLengthOfTripFrom: averageTripDistFromStation, 
+    avgLengthOfTripTo: averageTripDistToStation 
+  };
 };
 
 exports.addStation = async (station) => {
