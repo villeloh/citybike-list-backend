@@ -1,6 +1,6 @@
 
 exports.getTrips = (limit, skip) => {
-
+  
 };
 
 // id is the one that Mongo gives to it
