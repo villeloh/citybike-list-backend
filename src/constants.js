@@ -8,7 +8,14 @@ exports.DB_COLL_NAME_TRIPS = 'TRIPS';
 exports.MIN_TRIP_DISTANCE_M = 100;
 exports.MIN_TRIP_DURATION_S = 10;
 
+exports.SERVER_PORT_NUMBER = 3000;
+
 exports.STATIONS_URL = '/stations';
 exports.TRIPS_URL = '/trips';
-exports.STATION_INFO_URL = '/station';
+exports.STATION_URL = '/station';
 exports.TRIP_URL = '/trip';
+
+exports.DEFAULT_STATION_PAGE_LIMIT = 20;
+exports.DEFAULT_TRIP_PAGE_LIMIT = 20;
+
+exports.DEFAULT_TRIP_ORDER = {};

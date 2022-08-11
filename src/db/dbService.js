@@ -3,7 +3,16 @@
 // NOTE: This is not the fastest solution, but that would've been considerably less clear; the trade-off was not worth it, 
 // as data will only be entered into the db as huge chunks one time initially, and later on only incrementally (via API calls).
 
-const { DB_NAME, DB_URL, MIN_TRIP_DISTANCE_M, MIN_TRIP_DURATION_S, STATION_DATA_FILEPATH, TRIP_DATA_FILEPATHS, DB_COLL_NAME_STATIONS, DB_COLL_NAME_TRIPS } = require('../../constants');
+const { 
+  DB_NAME, 
+  DB_URL, 
+  MIN_TRIP_DISTANCE_M, 
+  MIN_TRIP_DURATION_S, 
+  STATION_DATA_FILEPATH, 
+  TRIP_DATA_FILEPATHS, 
+  DB_COLL_NAME_STATIONS, 
+  DB_COLL_NAME_TRIPS 
+} = require('../../constants');
 const { Station, Trip, GeoLocation } = require('../model');
 
 const { MongoClient } = require('mongodb');
@@ -52,21 +61,20 @@ const readline = require('readline');
 const readLineInterface = (csvFilePath) => {
 
   const readStream = fs.createReadStream(csvFilePath);
-  const rlInterface = readline.createInterface({ input: readStream });
   readline.clearLine(readStream, 0); // clear the first line (it contains the legend for each file)
+  const rlInterface = readline.createInterface({ input: readStream });
   return rlInterface;
 };
 
 const addAllStationsToDb = async () => {
 
-  // a bit clumsy, but this way we'll only add the data once
-  if (collectionExists(await connectedDatabase(), DB_COLL_NAME_STATIONS)) {
+  const db = await connectedDatabase();
 
+  // a bit clumsy, but this way we'll only add the data once
+  if (collectionExists(db, DB_COLL_NAME_STATIONS)) {
     closeDbConnection();
     return;
   }
-
-  const db = await connectedDatabase();
 
   const rlInterface = readLineInterface(STATION_DATA_FILEPATH);
 
@@ -92,15 +100,14 @@ const addAllStationsToDb = async () => {
 };
 
 const addAllTripsToDb = async () => {
+  
+  const db = await connectedDatabase();
 
   // a bit clumsy, but this way we'll only add the data once
-  if (collectionExists(await connectedDatabase(), DB_COLL_NAME_TRIPS)) {
-
+  if (collectionExists(db, DB_COLL_NAME_TRIPS)) {
     closeDbConnection();
     return;
   }
-
-  const db = await connectedDatabase();
 
   TRIP_DATA_FILEPATHS.forEach(async (filePath) => {
 
@@ -146,44 +153,63 @@ exports.createAndPopulateDb = async () => {
 
 exports.addOne = async (collectionName, object) => {
 
-  const db = await connectedDatabase();
-  await db.collection(collectionName).insertOne(object);
-  closeDbConnection();
+  if (!object) {
+    console.log('Aborting; no object included in database add query.');
+    return null;
+  }
+
+  try {
+    const db = await connectedDatabase();
+    await db.collection(collectionName).insertOne(object);
+    closeDbConnection();
+    return { success: true };
+  } catch(error) {
+    console.error(error);
+    return null;
+  }
 };
 
 exports.getOne = async (collectionName, query) => {
 
-  const db = await connectedDatabase();
-  const foundObj = await db.collection(collectionName).findOne(query);
-  closeDbConnection();
-  return foundObj;
+  try {
+    const db = await connectedDatabase();
+    const foundObj = await db.collection(collectionName).findOne(query);
+    closeDbConnection();
+    return foundObj;
+  } catch(error) {
+    console.error(error);
+    return null;
+  }
 };
 
 exports.getMany = async (collectionName, query, options, skip, limit) => {
 
-  const db = await connectedDatabase();
-  const foundObjects = await db.collection(collectionName).find(query, options).skip(skip).limit(limit);
-  closeDbConnection();
-  return foundObjects.toArray();
-};
-
-exports.count = async (collectionName, query) => {
-
-  const db = await connectedDatabase();
-  const numOfObjects = await db.collection(collectionName).countDocuments(query);
-  closeDbConnection();
-  return numOfObjects;
+  try {
+    const db = await connectedDatabase();
+    const foundObjects = await db.collection(collectionName).find(query, options).skip(skip).limit(limit);
+    closeDbConnection();
+    return foundObjects.toArray();
+  } catch(error) {
+    console.error(error);
+    return null;
+  }
 };
 
 exports.deleteOne = async (collectionName, query) => {
 
-  const db = await connectedDatabase();
-  const result = await db.collection(collectionName).deleteOne(query);
-
-  if (result.deletedCount === 1) {
-    console.log("Successfully deleted one document.");
-  } else {
-    console.log("No documents matched the query. Deleted 0 documents.");
+  try {
+    const db = await connectedDatabase();
+    const result = await db.collection(collectionName).deleteOne(query);
+  
+    if (result.deletedCount === 1) {
+      console.log("Successfully deleted one document.");
+    } else {
+      console.log("No documents matched the query. Deleted 0 documents.");
+    }
+    closeDbConnection();
+    return { success: true };
+  } catch(error) {
+    console.error(error);
+    return null;
   }
-  closeDbConnection();
 };

@@ -7,25 +7,21 @@ exports.getTrips = async (skip, limit, options) => {
   return await dbService.getMany(DB_COLL_NAME_TRIPS, {}, options, skip, limit);
 };
 
-// Not sure if needed; disabling for now.
-// id is the one that Mongo gives to it
-/* exports.getTrip = (id) => {
-
-}; */
-
 exports.addTrip = async (trip) => {
 
   if (dbService.validTrip(trip)) {
 
-    await dbService.addOne(DB_COLL_NAME_TRIPS, trip);
+    return await dbService.addOne(DB_COLL_NAME_TRIPS, trip);
   } else {
     console.log('Invalid trip; aborting db insert.');
+    return null;
   }
 };
 
-exports.deleteTrip = (id) => {
+exports.deleteTrip = async (tripId) => {
 
-  const query = { id };
+   // MongoDB-assigned id. Breaks separation of concerns, but I don't see an easy way around it.
+  const query = { _id: tripId };
 
-  await dbService.deleteOne(DB_COLL_NAME_TRIPS, query);
+  return await dbService.deleteOne(DB_COLL_NAME_TRIPS, query);
 };
