@@ -19,3 +19,5 @@ class Trip {
     this.duration = dura;
   }
 }
+
+module.exports = Trip;

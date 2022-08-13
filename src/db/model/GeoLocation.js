@@ -5,3 +5,5 @@ class GeoLocation {
     this.y = yCoord
   }
 }
+
+module.exports = GeoLocation;

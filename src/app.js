@@ -24,7 +24,7 @@ app.use((err, req, res, next) => {
   res.status(500).send('Internal Server Error');
 });
 
-app.get(STATIONS_URL, (req, res) => {
+app.get(STATIONS_URL, async (req, res) => {
   
   const skip = parseInt(req.query?.skip) || 0;
   const limit = parseInt(req.query?.limit) || DEFAULT_STATION_PAGE_LIMIT;
@@ -35,7 +35,7 @@ app.get(STATIONS_URL, (req, res) => {
   : res.status(500).send('No stations found; internal server error or malformed query.'); 
 });
 
-app.get(TRIPS_URL, (req, res) => {
+app.get(TRIPS_URL, async (req, res) => {
 
   const skip = req.query?.skip || 0;
   const limit = req.query?.limit || DEFAULT_TRIP_PAGE_LIMIT;
@@ -48,7 +48,7 @@ app.get(TRIPS_URL, (req, res) => {
   : res.status(500).send('No trips found; internal server error or malformed query.');
 });
 
-app.get(STATION_URL, (req, res) => {
+app.get(STATION_URL, async (req, res) => {
 
   const id = req.query?.stationId;
 
@@ -64,7 +64,7 @@ app.get(STATION_URL, (req, res) => {
   }
 });
 
-app.post(STATION_URL, (req, res) => {
+app.post(STATION_URL, async (req, res) => {
 
   const station = JSON.parse(req.body?.station);
 
@@ -80,7 +80,7 @@ app.post(STATION_URL, (req, res) => {
   }
 });
 
-app.post(TRIP_URL, (req, res) => {
+app.post(TRIP_URL, async (req, res) => {
 
   const trip = JSON.parse(req.body?.trip);
 
@@ -95,7 +95,7 @@ app.post(TRIP_URL, (req, res) => {
   }
 });
 
-app.delete(STATION_URL, (req, res) => {
+app.delete(STATION_URL, async (req, res) => {
 
   const id = req.query?.stationId;
 
@@ -110,7 +110,7 @@ app.delete(STATION_URL, (req, res) => {
   }
 });
 
-app.delete(TRIP_URL, (req, res) => {
+app.delete(TRIP_URL, async (req, res) => {
 
   const id = req.query?.tripId;
 

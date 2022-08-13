@@ -12,43 +12,32 @@ const {
   TRIP_DATA_FILEPATHS, 
   DB_COLL_NAME_STATIONS, 
   DB_COLL_NAME_TRIPS 
-} = require('../../constants');
-const { Station, Trip, GeoLocation } = require('../model');
+} = require('../constants');
+const Trip = require('../db/model/Trip');
+const Station = require('../db/model/Station');
+const GeoLocation = require('../db/model/GeoLocation');
 
 const { MongoClient } = require('mongodb');
 const client = new MongoClient(DB_URL);
+client.connect();
 
-// Create database ==================================================
-
-const createDbIfNotExist = async () => {
-
+// wrapper for error handling
+const dbOperation = async (callback) => {
   try {
-    await client.connect();
-    console.log('Connected successfully to Mongo client.');
-    client.db(DB_NAME); // creates it if it doesn't exist
-    console.log('Database exists.');
+    return await callback(client.db(DB_NAME));
   } catch(error) {
     console.error(error);
+    return null;
   }
-  closeDbConnection();
 };
 
-const connectedDatabase = async () => {
+// Create & populate db ======================================================
 
-  await client.connect();
-  console.log('Connected successfully to Mongo client.');
-  return client.db(DB_NAME);
-};
+const collectionExists = async (database, colName) => {
 
-const closeDbConnection = async () => {
-
-  await client.close();
-};
-
-// Populate db ======================================================
-
-const collectionExists = (database, colName) => {
-  return database.listCollections({ name: colName }).hasNext();
+  // probably horribly inefficient (if it really finds everything when the collection exists; not sure),
+  // but I had to use this as I was running out of time and my original method to verify the existence didn't work.
+  return await database.collection(colName).find({}).hasNext();
 };
 
 const parseLine = (line) => {
@@ -58,29 +47,32 @@ const parseLine = (line) => {
 const fs = require('fs');
 const readline = require('readline');
 
-const readLineInterface = (csvFilePath) => {
+const lineReader = (csvFilePath) => {
 
   const readStream = fs.createReadStream(csvFilePath);
-  readline.clearLine(readStream, 0); // clear the first line (it contains the legend for each file)
   const rlInterface = readline.createInterface({ input: readStream });
+
+   // Clear the first line to remove the legend... In theory. 
+   // Doesn't work for God knows what reason.
+  rlInterface.clearLine(readStream, 0);
   return rlInterface;
 };
 
-const addAllStationsToDb = async () => {
-
-  const db = await connectedDatabase();
+const addAllStationsToDb = async (db) => {
 
   // a bit clumsy, but this way we'll only add the data once
-  if (collectionExists(db, DB_COLL_NAME_STATIONS)) {
-    closeDbConnection();
+  if (await collectionExists(db, DB_COLL_NAME_STATIONS)) {
     return;
   }
 
-  const rlInterface = readLineInterface(STATION_DATA_FILEPATH);
+  const rlInterface = lineReader(STATION_DATA_FILEPATH);
 
   for await (const line of rlInterface) {
 
     const data = parseLine(line);
+
+     // skip the legend (in a way that works)
+    if (data[1] === 'ID') continue; 
 
     // field #0 contains line number (not needed)
     const station = new Station(
@@ -94,26 +86,24 @@ const addAllStationsToDb = async () => {
       parseInt(data[10]), // bike capacity
       new GeoLocation(parseInt(data[11]), parseInt(data[12])) // x & y coordinates
     );
-    db.collection(DB_COLL_NAME_STATIONS).insertOne(station);
+    await db.collection(DB_COLL_NAME_STATIONS).insertOne(station);
   }
-  closeDbConnection();
 };
 
-const addAllTripsToDb = async () => {
-  
-  const db = await connectedDatabase();
+const addAllTripsToDb = async (db) => {
 
   // a bit clumsy, but this way we'll only add the data once
-  if (collectionExists(db, DB_COLL_NAME_TRIPS)) {
-    closeDbConnection();
+  if (await collectionExists(db, DB_COLL_NAME_TRIPS)) {
     return;
   }
 
-  TRIP_DATA_FILEPATHS.forEach(async (filePath) => {
+  // foreach crashed due to running out of memory
+  for (let i = 0; i < TRIP_DATA_FILEPATHS.length; i++) {
 
-    const rlInterface = readLineInterface(filePath);
+    const filePath = TRIP_DATA_FILEPATHS[i];
+    const rlInterface = lineReader(filePath);
 
-    for await (const line  of rlInterface) {
+    for await (const line of rlInterface) {
 
       const data = parseLine(line);
 
@@ -129,24 +119,22 @@ const addAllTripsToDb = async () => {
       );
 
       if (validTrip(trip)) {
-        db.collection(DB_COLL_NAME_TRIPS).insertOne(trip);
+        await db.collection(DB_COLL_NAME_TRIPS).insertOne(trip);
       } else { 
         continue; 
       }
     }
-  });
-  closeDbConnection();
+  }
 };
 
-exports.validTrip = (trip) => {
+exports.validTrip = validTrip = (trip) => {
   return trip.distance > MIN_TRIP_DISTANCE_M && trip.duration > MIN_TRIP_DURATION_S;
 };
 
 exports.createAndPopulateDb = async () => {
 
-  await createDbIfNotExist();
-  addAllStationsToDb();
-  addAllTripsToDb();
+  await dbOperation(addAllTripsToDb);
+  await dbOperation(addAllStationsToDb);
 };
 
 // 'Regular' database methods, to be called by the controllers ========
@@ -158,47 +146,29 @@ exports.addOne = async (collectionName, object) => {
     return null;
   }
 
-  try {
-    const db = await connectedDatabase();
-    await db.collection(collectionName).insertOne(object);
-    closeDbConnection();
-    return { success: true };
-  } catch(error) {
-    console.error(error);
-    return null;
-  }
+  await dbOperation(async (db) => {
+      return await db.collection(collectionName).insertOne(object);
+  });
 };
 
 exports.getOne = async (collectionName, query) => {
 
-  try {
-    const db = await connectedDatabase();
-    const foundObj = await db.collection(collectionName).findOne(query);
-    closeDbConnection();
-    return foundObj;
-  } catch(error) {
-    console.error(error);
-    return null;
-  }
+  await dbOperation(async () => {
+    return await db.collection(collectionName).findOne(query);
+  });
 };
 
 exports.getMany = async (collectionName, query, options, skip, limit) => {
 
-  try {
-    const db = await connectedDatabase();
-    const foundObjects = await db.collection(collectionName).find(query, options).skip(skip).limit(limit);
-    closeDbConnection();
-    return foundObjects.toArray();
-  } catch(error) {
-    console.error(error);
-    return null;
-  }
+  await dbOperation(async () => {
+    return await db.collection(collectionName).find(query, options).skip(skip).limit(limit).toArray();
+  });
 };
 
 exports.deleteOne = async (collectionName, query) => {
 
-  try {
-    const db = await connectedDatabase();
+  await dbOperation(async () => {
+
     const result = await db.collection(collectionName).deleteOne(query);
   
     if (result.deletedCount === 1) {
@@ -206,10 +176,6 @@ exports.deleteOne = async (collectionName, query) => {
     } else {
       console.log("No documents matched the query. Deleted 0 documents.");
     }
-    closeDbConnection();
     return { success: true };
-  } catch(error) {
-    console.error(error);
-    return null;
-  }
+  });
 };

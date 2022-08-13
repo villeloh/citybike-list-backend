@@ -1,6 +1,6 @@
 
 exports.DB_NAME = 'citybikeDb';
-exports.DB_URL = 'mongodb://localhost:27017';
+exports.DB_URL = 'mongodb://127.0.0.1:27017';
 exports.STATION_DATA_FILEPATH = './csv/Stations.csv';
 exports.TRIP_DATA_FILEPATHS = ['./csv/Trips-2021-05.csv' , './csv/Trips-2021-06.csv', './csv/Trips-2021-07.csv'];
 exports.DB_COLL_NAME_STATIONS = 'STATIONS';

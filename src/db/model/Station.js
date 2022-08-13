@@ -21,3 +21,5 @@ class Station {
     this.geoLocation = geoLocation
   }
 }
+
+module.exports = Station;
