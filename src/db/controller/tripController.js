@@ -1,7 +1,11 @@
-const { DB_COLL_NAME_TRIPS } = require('../../constants');
+const { DB_COLL_NAME_TRIPS, TRIP_ORDER } = require('../../constants');
 const dbService = require('../dbService');
 
-exports.getTrips = async (skip, limit, options) => {
+exports.getTrips = async (skip, limit, orderStr) => {
+
+  // MongoDB required format. Breaks separation of concerns, but I'd rather do it like this 
+  // than add variant methods in dbService.
+  const options = { sort: TRIP_ORDER[orderStr] };
 
   // empty query object returns every Trip
   return await dbService.getMany(DB_COLL_NAME_TRIPS, {}, options, skip, limit);
@@ -20,7 +24,7 @@ exports.addTrip = async (trip) => {
 
 exports.deleteTrip = async (tripId) => {
 
-   // MongoDB-assigned id. Breaks separation of concerns, but I don't see an easy way around it.
+   // MongoDB-assigned id
   const query = { _id: tripId };
 
   return await dbService.deleteOne(DB_COLL_NAME_TRIPS, query);

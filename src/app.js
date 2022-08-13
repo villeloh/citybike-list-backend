@@ -12,7 +12,6 @@ const {
   TRIP_URL, 
   DEFAULT_STATION_PAGE_LIMIT, 
   DEFAULT_TRIP_PAGE_LIMIT, 
-  DEFAULT_TRIP_ORDER, 
   SERVER_PORT_NUMBER 
 } = require('./constants');
 
@@ -27,8 +26,8 @@ app.use((err, req, res, next) => {
 
 app.get(STATIONS_URL, (req, res) => {
   
-  const skip = req.query?.skip || 0;
-  const limit = req.query?.limit || DEFAULT_STATION_PAGE_LIMIT;
+  const skip = parseInt(req.query?.skip) || 0;
+  const limit = parseInt(req.query?.limit) || DEFAULT_STATION_PAGE_LIMIT;
   const stations = await stationCtrl.getStations(skip, limit);
 
   stations 
@@ -40,11 +39,9 @@ app.get(TRIPS_URL, (req, res) => {
 
   const skip = req.query?.skip || 0;
   const limit = req.query?.limit || DEFAULT_TRIP_PAGE_LIMIT;
-  const order = req.query?.order || DEFAULT_TRIP_ORDER;
+  const orderStr = req.query?.order || 'default';
 
-  const options = { sort: order }; // 'order' is an object of the type '{ retStation: 1}', etc
-
-  const trips = await tripCtrl.getTrips(skip, limit, options);
+  const trips = await tripCtrl.getTrips(skip, limit, orderStr);
 
   trips
   ? res.status(200).json(trips)
@@ -69,7 +66,7 @@ app.get(STATION_URL, (req, res) => {
 
 app.post(STATION_URL, (req, res) => {
 
-  const station = req.body?.station;
+  const station = JSON.parse(req.body?.station);
 
   if (station) {
 
@@ -85,7 +82,7 @@ app.post(STATION_URL, (req, res) => {
 
 app.post(TRIP_URL, (req, res) => {
 
-  const trip = req.body?.trip;
+  const trip = JSON.parse(req.body?.trip);
 
   if (trip) {
     const success = await tripCtrl.addTrip(trip);
