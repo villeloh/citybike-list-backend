@@ -1,8 +1,8 @@
 
 exports.DB_NAME = 'citybikeDb';
 exports.DB_URL = 'mongodb://127.0.0.1:27017';
-exports.STATION_DATA_FILEPATH = './csv/Stations.csv';
-exports.TRIP_DATA_FILEPATHS = ['./csv/Trips-2021-05.csv' , './csv/Trips-2021-06.csv', './csv/Trips-2021-07.csv'];
+exports.STATION_DATA_FILEPATH = './csv/726277c507ef4914b0aec3cbcfcbfafc_0.csv';
+exports.TRIP_DATA_FILEPATHS = ['./csv/2021-05.csv' , './csv/2021-06.csv', './csv/2021-07.csv'];
 exports.DB_COLL_NAME_STATIONS = 'STATIONS';
 exports.DB_COLL_NAME_TRIPS = 'TRIPS';
 exports.MIN_TRIP_DISTANCE_M = 100;

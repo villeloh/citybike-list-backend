@@ -16,16 +16,26 @@ as well as some statistics about them.
 
 The project is run locally on your own computer.
 
-1. First, dl and install the local Node.js driver for MongoDB (google the instructions for PC or Mac).
+1. Download and install the local Node.js driver for MongoDB (google the instructions for PC or Mac).
 To ensure functionality, choose the default options for the installation. 
 
 2. Download the project as a zip file or run 'git clone' on it with your terminal shell of choice.
-3. Make sure you have Node Package Manager ('npm') installed on your computer (refer to Google for the instructions).
-4. In the project folder, run the terminal command 'npm install'.
-5. Then, run the command 'npm start'.
-6. This should start the server; the app is ready to receive web requests from the frontend.
 
-7. In order to view the data and operate on it, be sure to install and run the frontend part of the project 
+3. Download the following four .csv files (Github wouldn't let me store them in the project folder due to file size limit):
+
+[Stations,](https://opendata.arcgis.com/datasets/726277c507ef4914b0aec3cbcfcbfafc_0.csv)
+[Trips-1,](https://dev.hsl.fi/citybikes/od-trips-2021/2021-05.csv)
+[Trips-2,](https://dev.hsl.fi/citybikes/od-trips-2021/2021-06.csv)
+[Trips-3.](https://dev.hsl.fi/citybikes/od-trips-2021/2021-07.csv)
+
+4. Put the files in the folder 'csv' that is included with the project.
+
+5. Make sure you have Node Package Manager ('npm') installed on your computer (refer to Google for the instructions).
+6. In the project folder, run the terminal command 'npm install'.
+7. Then, run the command 'npm start'.
+8. This should start the server; the app is ready to receive web requests from the frontend.
+
+9. In order to view the data and operate on it, be sure to install and run the frontend part of the project 
 as well: [citybike-list-frontend.](https://github.com/villeloh/citybike-list-frontend)
 
 ## About the project
