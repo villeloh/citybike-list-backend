@@ -84,7 +84,7 @@ const addAllStationsToDb = async (db) => {
       data[6] + ', ' + data[8], // address (street + city) in Swedish
       data[9], // bike service operator
       parseInt(data[10]), // bike capacity
-      new GeoLocation(parseInt(data[11]), parseInt(data[12])) // x & y coordinates
+      new GeoLocation(Number(data[11]), Number(data[12])) // x & y coordinates
     );
     await db.collection(DB_COLL_NAME_STATIONS).insertOne(station);
   }
@@ -146,28 +146,28 @@ exports.addOne = async (collectionName, object) => {
     return null;
   }
 
-  await dbOperation(async (db) => {
+  return await dbOperation(async (db) => {
       return await db.collection(collectionName).insertOne(object);
   });
 };
 
 exports.getOne = async (collectionName, query) => {
 
-  await dbOperation(async () => {
+  return await dbOperation(async (db) => {
     return await db.collection(collectionName).findOne(query);
   });
 };
 
-exports.getMany = async (collectionName, query, options, skip, limit) => {
+exports.getMany = async (collectionName, query, options = null, skip = 0, limit = 0) => {
 
-  await dbOperation(async () => {
+  return await dbOperation(async (db) => {
     return await db.collection(collectionName).find(query, options).skip(skip).limit(limit).toArray();
   });
 };
 
 exports.deleteOne = async (collectionName, query) => {
 
-  await dbOperation(async () => {
+  return await dbOperation(async (db) => {
 
     const result = await db.collection(collectionName).deleteOne(query);
   

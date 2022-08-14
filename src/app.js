@@ -37,8 +37,8 @@ app.get(STATIONS_URL, async (req, res) => {
 
 app.get(TRIPS_URL, async (req, res) => {
 
-  const skip = req.query?.skip || 0;
-  const limit = req.query?.limit || DEFAULT_TRIP_PAGE_LIMIT;
+  const skip = parseInt(req.query?.skip) || 0;
+  const limit = parseInt(req.query?.limit) || DEFAULT_TRIP_PAGE_LIMIT;
   const orderStr = req.query?.order || 'default';
 
   const trips = await tripCtrl.getTrips(skip, limit, orderStr);
@@ -50,7 +50,7 @@ app.get(TRIPS_URL, async (req, res) => {
 
 app.get(STATION_URL, async (req, res) => {
 
-  const id = req.query?.stationId;
+  const id = parseInt(req.query?.stationId);
 
   if (id) {
     const stationInfo = await stationCtrl.getStationInfo(id);

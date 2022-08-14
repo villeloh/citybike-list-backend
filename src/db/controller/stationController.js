@@ -16,6 +16,8 @@ exports.getStationInfo = async (stationId) => {
     return null;
   }
 
+  // This query is awfully slow since we go through all the Trips. Dividing it in two and creating indices for 
+  // depStationId and retStationId should be possible.
   const tripsToOrFromStation = await dbService.getMany(DB_COLL_NAME_TRIPS, { $or: [{depStationId: stationId}, {retStationId: stationId} ]});
 
   let numOfTripsFromStation = 0;
@@ -23,7 +25,9 @@ exports.getStationInfo = async (stationId) => {
   let totalDistOfTripsFromStation = 0;
   let totalDistOfTripsToStation = 0;
 
-  tripsToOrFromStation.forEach(trip => {
+  for (let i = 0; i < tripsToOrFromStation.length; i++) {
+
+    const trip = tripsToOrFromStation[i];
 
     if (trip.depStationId === stationId) {
       numOfTripsFromStation++;
@@ -33,7 +37,7 @@ exports.getStationInfo = async (stationId) => {
       numOfTripsToStation++;
       totalDistOfTripsToStation += trip.distance;
     }
-  });
+  }
 
   const averageTripDistFromStation = numOfTripsFromStation === 0 ? 0 : totalDistOfTripsFromStation / numOfTripsFromStation;
   const averageTripDistToStation = numOfTripsToStation === 0 ? 0 : totalDistOfTripsToStation / numOfTripsToStation;
@@ -47,7 +51,9 @@ exports.getStationInfo = async (stationId) => {
     numOfTripsFrom: numOfTripsFromStation, 
     numOfTripsTo: numOfTripsToStation, 
     avgLengthOfTripFrom: averageTripDistFromStation, 
-    avgLengthOfTripTo: averageTripDistToStation 
+    avgLengthOfTripTo: averageTripDistToStation,
+    capacity: station.capacity,
+    operator: station.operator
   };
 };
 

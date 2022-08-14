@@ -20,12 +20,12 @@ exports.DEFAULT_TRIP_PAGE_LIMIT = 20;
 
 exports.TRIP_ORDER = {
   default: {},
-  dep_from_asc: { depStation: 1 },
-  ret_to_asc: { retStation: 1 },
+  dep_from_asc: { depStationName: 1 },
+  ret_to_asc: { retStationName: 1 },
   distance_asc: { distance: 1 },
   duration_asc: { duration: 1 },
-  dep_from_desc: { depStation: -1 },
-  ret_to_desc: { retStation: -1 },
+  dep_from_desc: { depStationName: -1 },
+  ret_to_desc: { retStationName: -1 },
   distance_desc: { distance: -1 },
   duration_desc: { duration: -1 }
 };
