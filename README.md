@@ -46,6 +46,8 @@ MongoDB is one of the only databases that I have extensive experience with, and 
 I split the project into two different git repos, as typically the frontend and backend are not included in the same repo; 
 for me it would lead to a confusing and error-prone workflow.
 
+Since this is such a small project, I committed everything straight to the master branch (I'd never do it in a work project).
+
 Early on in the project, I chose which requirements I wanted to fulfill; I'm pleased to say that in the end 
 I finished almost all of them (with some rough edges). The server endpoints for adding and deleting stations 
 and trips do exist; there is just no UI to access them.
