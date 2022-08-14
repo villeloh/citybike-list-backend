@@ -40,7 +40,7 @@ as well: [citybike-list-frontend.](https://github.com/villeloh/citybike-list-fro
 
 ## About the project
 
-# Tech choices
+### Tech choices
 
 I went with Node.js and plain JS because time was of the essence and they're the most familiar backend tools to me.
 Also, Node.js tends to work well for small projects like this, being very lean by default.
@@ -51,7 +51,7 @@ be easily deduced.
 
 MongoDB is one of the only databases that I have extensive experience with, and I like how everything is an object in it.
 
-# Other choices
+### Other choices
 
 I split the project into two different git repos, as typically the frontend and backend are not included in the same repo; 
 for me it would lead to a confusing and error-prone workflow.
@@ -68,7 +68,7 @@ worked fine for it in theory, but I didn't want to risk losing time to the obscu
 Time pressure and inexperience are also the reasons why there are no tests of any kind for either part of the project.
 I've fiddled with unit tests in Java Spring and JS, but never really learned a framework top-to-bottom.
 
-# Final words (for now)
+### Final words (for now)
 
 It was a fun little project, although I was in a tremendous hurry. There is a lot of room for improvement; 
 in particular, the database query for getting station info is very slow. More requirements could easily 
